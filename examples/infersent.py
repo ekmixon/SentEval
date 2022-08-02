@@ -40,18 +40,30 @@ def prepare(params, samples):
 
 def batcher(params, batch):
     sentences = [' '.join(s) for s in batch]
-    embeddings = params.infersent.encode(sentences, bsize=params.batch_size, tokenize=False)
-    return embeddings
+    return params.infersent.encode(
+        sentences, bsize=params.batch_size, tokenize=False
+    )
 
 
 """
 Evaluation of trained model on Transfer Tasks (SentEval)
 """
 
+
 # define senteval params
-params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5}
-params_senteval['classifier'] = {'nhid': 0, 'optim': 'rmsprop', 'batch_size': 128,
-                                 'tenacity': 3, 'epoch_size': 2}
+params_senteval = {
+    'task_path': PATH_TO_DATA,
+    'usepytorch': True,
+    'kfold': 5,
+    'classifier': {
+        'nhid': 0,
+        'optim': 'rmsprop',
+        'batch_size': 128,
+        'tenacity': 3,
+        'epoch_size': 2,
+    },
+}
+
 # Set up logger
 logging.basicConfig(format='%(asctime)s : %(message)s', level=logging.DEBUG)
 

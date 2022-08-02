@@ -88,8 +88,7 @@ class PairwiseRankingLoss(nn.Module):
                                 min=0.0).sum()
         cost_img = torch.clamp(self.margin - anchor2 + sent_imgc,
                                min=0.0).sum()
-        loss = cost_sent + cost_img
-        return loss
+        return cost_sent + cost_img
 
 
 class ImageSentenceRankingPytorch(object):
@@ -143,7 +142,7 @@ class ImageSentenceRankingPytorch(object):
         # Preparing data
         logging.info('prepare data')
         trainTxt, trainImg, devTxt, devImg, testTxt, testImg = \
-            self.prepare_data(self.train['sentfeat'], self.train['imgfeat'],
+                self.prepare_data(self.train['sentfeat'], self.train['imgfeat'],
                               self.valid['sentfeat'], self.valid['imgfeat'],
                               self.test['sentfeat'], self.test['imgfeat'])
 
@@ -219,9 +218,9 @@ class ImageSentenceRankingPytorch(object):
             results['t2i']['medr'] += medr_t2i / 5
 
         return bestdevscore, results['i2t']['r1'], results['i2t']['r5'], \
-                             results['i2t']['r10'], results['i2t']['medr'], \
-                             results['t2i']['r1'], results['t2i']['r5'], \
-                             results['t2i']['r10'], results['t2i']['medr']
+                                 results['i2t']['r10'], results['i2t']['medr'], \
+                                 results['t2i']['r1'], results['t2i']['r5'], \
+                                 results['t2i']['r10'], results['t2i']['medr']
 
     def trainepoch(self, trainTxt, trainImg, devTxt, devImg, nepoches=1):
         self.model.train()
@@ -345,7 +344,7 @@ class ImageSentenceRankingPytorch(object):
 
                 # Score
                 rank = 1e20
-                for i in range(5*index, 5*index + 5, 1):
+                for i in range(5*index, 5*index + 5):
                     tmp = np.where(inds == i)[0][0]
                     if tmp < rank:
                         rank = tmp

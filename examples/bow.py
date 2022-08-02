@@ -32,10 +32,12 @@ def create_dictionary(sentences, threshold=0):
             words[word] = words.get(word, 0) + 1
 
     if threshold > 0:
-        newwords = {}
-        for word in words:
-            if words[word] >= threshold:
-                newwords[word] = words[word]
+        newwords = {
+            word: words[word]
+            for word, value in words.items()
+            if value >= threshold
+        }
+
         words = newwords
     words['<s>'] = 1e9 + 4
     words['</s>'] = 1e9 + 3
@@ -78,10 +80,7 @@ def batcher(params, batch):
     embeddings = []
 
     for sent in batch:
-        sentvec = []
-        for word in sent:
-            if word in params.word_vec:
-                sentvec.append(params.word_vec[word])
+        sentvec = [params.word_vec[word] for word in sent if word in params.word_vec]
         if not sentvec:
             vec = np.zeros(params.wvec_dim)
             sentvec.append(vec)
@@ -93,9 +92,18 @@ def batcher(params, batch):
 
 
 # Set params for SentEval
-params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5}
-params_senteval['classifier'] = {'nhid': 0, 'optim': 'rmsprop', 'batch_size': 128,
-                                 'tenacity': 3, 'epoch_size': 2}
+params_senteval = {
+    'task_path': PATH_TO_DATA,
+    'usepytorch': True,
+    'kfold': 5,
+    'classifier': {
+        'nhid': 0,
+        'optim': 'rmsprop',
+        'batch_size': 128,
+        'tenacity': 3,
+        'epoch_size': 2,
+    },
+}
 
 # Set up logger
 logging.basicConfig(format='%(asctime)s : %(message)s', level=logging.DEBUG)

@@ -29,9 +29,9 @@ class PROBINGEval(object):
                           'dev': {'X': [], 'y': []},
                           'test': {'X': [], 'y': []}}
         self.loadFile(task_path)
-        logging.info('Loaded %s train - %s dev - %s test for %s' %
-                     (len(self.task_data['train']['y']), len(self.task_data['dev']['y']),
-                      len(self.task_data['test']['y']), self.task))
+        logging.info(
+            f"Loaded {len(self.task_data['train']['y'])} train - {len(self.task_data['dev']['y'])} dev - {len(self.task_data['test']['y'])} test for {self.task}"
+        )
 
     def do_prepare(self, params, prepare):
         samples = self.task_data['train']['X'] + self.task_data['dev']['X'] + \

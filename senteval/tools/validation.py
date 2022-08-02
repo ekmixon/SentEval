@@ -27,13 +27,11 @@ from sklearn.model_selection import StratifiedKFold
 
 def get_classif_name(classifier_config, usepytorch):
     if not usepytorch:
-        modelname = 'sklearn-LogReg'
-    else:
-        nhid = classifier_config['nhid']
-        optim = 'adam' if 'optim' not in classifier_config else classifier_config['optim']
-        bs = 64 if 'batch_size' not in classifier_config else classifier_config['batch_size']
-        modelname = 'pytorch-MLP-nhid%s-%s-bs%s' % (nhid, optim, bs)
-    return modelname
+        return 'sklearn-LogReg'
+    nhid = classifier_config['nhid']
+    optim = 'adam' if 'optim' not in classifier_config else classifier_config['optim']
+    bs = 64 if 'batch_size' not in classifier_config else classifier_config['batch_size']
+    return f'pytorch-MLP-nhid{nhid}-{optim}-bs{bs}'
 
 # Pytorch version
 class InnerKFoldClassifier(object):
@@ -58,14 +56,16 @@ class InnerKFoldClassifier(object):
         logging.info('Training {0} with (inner) {1}-fold cross-validation'
                      .format(self.modelname, self.k))
 
-        regs = [10**t for t in range(-5, -1)] if self.usepytorch else \
-               [2**t for t in range(-2, 4, 1)]
+        regs = (
+            [10**t for t in range(-5, -1)]
+            if self.usepytorch
+            else [2**t for t in range(-2, 4)]
+        )
+
         skf = StratifiedKFold(n_splits=self.k, shuffle=True, random_state=1111)
         innerskf = StratifiedKFold(n_splits=self.k, shuffle=True,
                                    random_state=1111)
-        count = 0
-        for train_idx, test_idx in skf.split(self.X, self.y):
-            count += 1
+        for count, (train_idx, test_idx) in enumerate(skf.split(self.X, self.y), start=1):
             X_train, X_test = self.X[train_idx], self.X[test_idx]
             y_train, y_test = self.y[train_idx], self.y[test_idx]
             scores = []
@@ -127,8 +127,12 @@ class KFoldClassifier(object):
         # cross-validation
         logging.info('Training {0} with {1}-fold cross-validation'
                      .format(self.modelname, self.k))
-        regs = [10**t for t in range(-5, -1)] if self.usepytorch else \
-               [2**t for t in range(-1, 6, 1)]
+        regs = (
+            [10**t for t in range(-5, -1)]
+            if self.usepytorch
+            else [2**t for t in range(-1, 6)]
+        )
+
         skf = StratifiedKFold(n_splits=self.k, shuffle=True,
                               random_state=self.seed)
         scores = []
@@ -157,8 +161,10 @@ class KFoldClassifier(object):
             scores.append(round(100*np.mean(scanscores), 2))
 
         # evaluation
-        logging.info([('reg:' + str(regs[idx]), scores[idx])
-                      for idx in range(len(scores))])
+        logging.info(
+            [(f'reg:{str(regs[idx])}', scores[idx]) for idx in range(len(scores))]
+        )
+
         optreg = regs[np.argmax(scores)]
         devaccuracy = np.max(scores)
         logging.info('Cross-validation : best param found is reg = {0} \
@@ -202,8 +208,12 @@ class SplitClassifier(object):
     def run(self):
         logging.info('Training {0} with standard validation..'
                      .format(self.modelname))
-        regs = [10**t for t in range(-5, -1)] if self.usepytorch else \
-               [2**t for t in range(-2, 4, 1)]
+        regs = (
+            [10**t for t in range(-5, -1)]
+            if self.usepytorch
+            else [2**t for t in range(-2, 4)]
+        )
+
         if self.noreg:
             regs = [1e-9 if self.usepytorch else 1e9]
         scores = []
@@ -221,8 +231,10 @@ class SplitClassifier(object):
                 clf.fit(self.X['train'], self.y['train'])
             scores.append(round(100*clf.score(self.X['valid'],
                                 self.y['valid']), 2))
-        logging.info([('reg:'+str(regs[idx]), scores[idx])
-                      for idx in range(len(scores))])
+        logging.info(
+            [(f'reg:{str(regs[idx])}', scores[idx]) for idx in range(len(scores))]
+        )
+
         optreg = regs[np.argmax(scores)]
         devaccuracy = np.max(scores)
         logging.info('Validation : best param found is reg = {0} with score \

@@ -34,8 +34,7 @@ def batcher(params, batch):
     _, reps_h_t = gensen.get_representation(
         sentences, pool='last', return_numpy=True, tokenize=True
     )
-    embeddings = reps_h_t
-    return embeddings
+    return reps_h_t
 
 # Load GenSen model
 gensen_1 = GenSenSingle(
@@ -54,10 +53,19 @@ reps_h, reps_h_t = gensen.get_representation(
 )
 
 # Set params for SentEval
-params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5}
-params_senteval['classifier'] = {'nhid': 0, 'optim': 'rmsprop', 'batch_size': 128,
-                                 'tenacity': 3, 'epoch_size': 2}
-params_senteval['gensen'] = gensen_encoder
+params_senteval = {
+    'task_path': PATH_TO_DATA,
+    'usepytorch': True,
+    'kfold': 5,
+    'classifier': {
+        'nhid': 0,
+        'optim': 'rmsprop',
+        'batch_size': 128,
+        'tenacity': 3,
+        'epoch_size': 2,
+    },
+    'gensen': gensen_encoder,
+}
 
 # Set up logger
 logging.basicConfig(format='%(asctime)s : %(message)s', level=logging.DEBUG)

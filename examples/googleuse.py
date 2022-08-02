@@ -32,8 +32,7 @@ def prepare(params, samples):
 
 def batcher(params, batch):
     batch = [' '.join(sent) if sent != [] else '.' for sent in batch]
-    embeddings = params['google_use'](batch)
-    return embeddings
+    return params['google_use'](batch)
 
 def make_embed_fn(module):
   with tf.Graph().as_default():
@@ -47,10 +46,19 @@ def make_embed_fn(module):
 encoder = make_embed_fn("https://tfhub.dev/google/universal-sentence-encoder-large/2")
 
 # Set params for SentEval
-params_senteval = {'task_path': PATH_TO_DATA, 'usepytorch': True, 'kfold': 5}
-params_senteval['classifier'] = {'nhid': 0, 'optim': 'rmsprop', 'batch_size': 128,
-                                 'tenacity': 3, 'epoch_size': 2}
-params_senteval['google_use'] = encoder
+params_senteval = {
+    'task_path': PATH_TO_DATA,
+    'usepytorch': True,
+    'kfold': 5,
+    'classifier': {
+        'nhid': 0,
+        'optim': 'rmsprop',
+        'batch_size': 128,
+        'tenacity': 3,
+        'epoch_size': 2,
+    },
+    'google_use': encoder,
+}
 
 # Set up logger
 logging.basicConfig(format='%(asctime)s : %(message)s', level=logging.DEBUG)

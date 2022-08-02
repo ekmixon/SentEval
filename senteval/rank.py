@@ -45,22 +45,22 @@ class ImageCaptionRetrievalEval(object):
             list_sent = []
             list_img_feat = []
             if sys.version_info < (3, 0):
-                with open(os.path.join(fpath, split + '.pkl')) as f:
+                with open(os.path.join(fpath, f'{split}.pkl')) as f:
                     cocodata = pickle.load(f)
             else:
-                with open(os.path.join(fpath, split + '.pkl'), 'rb') as f:
+                with open(os.path.join(fpath, f'{split}.pkl'), 'rb') as f:
                     cocodata = pickle.load(f, encoding='latin1')
 
             for imgkey in range(len(cocodata['features'])):
                 assert len(cocodata['image_to_caption_ids'][imgkey]) >= 5, \
-                       cocodata['image_to_caption_ids'][imgkey]
-                for captkey in cocodata['image_to_caption_ids'][imgkey][0:5]:
+                           cocodata['image_to_caption_ids'][imgkey]
+                for captkey in cocodata['image_to_caption_ids'][imgkey][:5]:
                     sent = cocodata['captions'][captkey]['cleaned_caption']
                     sent += ' .'  # add punctuation to end of sentence in COCO
                     list_sent.append(sent.encode('utf-8').split())
                     list_img_feat.append(cocodata['features'][imgkey])
             assert len(list_sent) == len(list_img_feat) and \
-                len(list_sent) % 5 == 0
+                    len(list_sent) % 5 == 0
             list_img_feat = np.array(list_img_feat).astype('float32')
             coco[split] = {'sent': list_sent, 'imgfeat': list_img_feat}
         return coco['train'], coco['valid'], coco['test']
